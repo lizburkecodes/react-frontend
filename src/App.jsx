@@ -2,6 +2,8 @@ import { Routes, Route, Link } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -15,10 +17,10 @@ const App = () => {
         <Routes>
           <Route index element={<HomePage />} />
           <Route path="/create" element={<CreatePage />} />
-          <Route path="/edit" element={<EditPage />} />
+          <Route path="/edit/:id" element={<EditPage />} />
         </Routes>
       </div>
-
+      <ToastContainer />
     </div>
   );
 }
