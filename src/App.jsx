@@ -1,9 +1,11 @@
 import { Routes, Route, Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import HomePage from "./pages/HomePage";
 import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import StorePage from "./pages/StorePage";
 
 const App = () => {
   return (
@@ -18,6 +20,7 @@ const App = () => {
           <Route index element={<HomePage />} />
           <Route path="/create" element={<CreatePage />} />
           <Route path="/edit/:id" element={<EditPage />} />
+          <Route path="/stores/:id" element={<StorePage />} />
         </Routes>
       </div>
       <ToastContainer />
