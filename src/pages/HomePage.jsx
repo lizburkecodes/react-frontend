@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
+import api from "../api";
 
 const HomePage = () => {
   const [stores, setStores] = useState([]);
@@ -10,7 +10,7 @@ const HomePage = () => {
   const getStores = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/stores`);
+      const response = await api.get("/api/stores");
       setStores(response.data);
     } catch (error) {
       console.error("Error fetching stores:", error);
