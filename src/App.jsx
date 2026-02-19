@@ -9,6 +9,7 @@ import EditPage from "./pages/EditPage";
 import StorePage from "./pages/StorePage";
 import RegisterPage from "./pages/RegisterPage";
 import CreateStorePage from "./pages/CreateStorePage";
+import CreateProductForStorePage from "./pages/CreateProductForStorePage";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Routes>
           <Route index element={<HomePage />} />
           <Route path="/stores/create" element={<CreateStorePage />} />
+          <Route path="/stores/:storeId/products/create" element={<CreateProductForStorePage />} />
           <Route path="/stores/:id" element={<StorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
