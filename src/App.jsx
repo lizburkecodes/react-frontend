@@ -33,7 +33,7 @@ const App = () => {
       <nav className="bg-gray-800">
         <div className="container mx-auto p-2 flex items-center justify-between">
           <Link to="/">
-            <h2 className="text-white text-2xl font-bold">Free Store</h2>
+            <h2 className="text-white text-2xl font-bold">Little Free Finder</h2>
           </Link>
 
           <div className="flex items-center gap-3">

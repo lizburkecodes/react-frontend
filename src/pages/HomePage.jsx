@@ -15,6 +15,12 @@ const HomePage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
 
+  const [useGeo, setUseGeo] = useState(false);
+  const [geoLat, setGeoLat] = useState(null);
+  const [geoLng, setGeoLng] = useState(null);
+  const [radiusKm, setRadiusKm] = useState(10);
+  const [geoError, setGeoError] = useState("");
+
   const getStores = async () => {
     try {
       setIsLoading(true);
@@ -37,6 +43,11 @@ const HomePage = () => {
     setIsSearchMode(false);
     setSearchStores([]);
     setSearchProducts([]);
+    setUseGeo(false);
+    setGeoLat(null);
+    setGeoLng(null);
+    setGeoError("");
+    setRadiusKm(10);
   };
 
   const runSearch = async (e) => {
@@ -58,6 +69,12 @@ const HomePage = () => {
       if (q.trim()) params.set("q", q.trim());
       if (location.trim()) params.set("location", location.trim());
 
+      if (useGeo && geoLat != null && geoLng != null) {
+        params.set("lat", String(geoLat));
+        params.set("lng", String(geoLng));
+        params.set("radiusKm", String(radiusKm));
+      }
+
       const res = await api.get(`/api/search?${params.toString()}`);
 
       setSearchStores(res.data.stores || []);
@@ -69,9 +86,36 @@ const HomePage = () => {
     }
   };
 
+  const getMyLocation = () => {
+    setGeoError("");
+
+    if (!navigator.geolocation) {
+      setGeoError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGeoLat(pos.coords.latitude);
+        setGeoLng(pos.coords.longitude);
+        setUseGeo(true);
+      },
+      (err) => {
+        setUseGeo(false);
+        setGeoLat(null);
+        setGeoLng(null);
+
+        if (err.code === 1) setGeoError("Location permission denied.");
+        else if (err.code === 2) setGeoError("Position unavailable.");
+        else setGeoError("Could not get your location.");
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
+    );
+  };
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mt-4">Stores</h1>
+      {/* <h1 className="text-2xl font-bold mt-4">Stores</h1> */}
       <form onSubmit={runSearch} className="mt-4 bg-white rounded shadow p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <input
@@ -106,6 +150,39 @@ const HomePage = () => {
             >
               Clear
             </button>
+          </div>
+          <div className="mt-3 flex flex-col md:flex-row md:items-center gap-3">
+            <button
+              type="button"
+              onClick={getMyLocation}
+              className="md:w-auto bg-gray-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-gray-600"
+            >
+              Use My Location
+            </button>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              Radius
+              <select
+                value={radiusKm}
+                onChange={(e) => setRadiusKm(Number(e.target.value))}
+                className="border rounded p-2"
+                disabled={!useGeo}
+              >
+                <option value={5}>5 km</option>
+                <option value={10}>10 km</option>
+                <option value={25}>25 km</option>
+                <option value={50}>50 km</option>
+                <option value={100}>100 km</option>
+              </select>
+            </label>
+
+            {useGeo && geoLat != null && geoLng != null && (
+              <div className="text-xs text-gray-600">
+                Using location: {geoLat.toFixed(4)}, {geoLng.toFixed(4)}
+              </div>
+            )}
+
+            {geoError && <div className="text-xs text-red-600">{geoError}</div>}
           </div>
         </div>
       </form>
@@ -201,7 +278,6 @@ const HomePage = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
