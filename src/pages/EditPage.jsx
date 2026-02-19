@@ -7,13 +7,13 @@ const EditPage = () => {
   let { id } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [product, setProduct] = useState({ name: "", quantity: "", price: "", image: "" });
+  const [product, setProduct] = useState({ name: "", quantity: "", location: "", image: "" });
 
   const getProduct = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
-      setProduct({ name: response.data.name, quantity: response.data.quantity, price: response.data.price, image: response.data.image });
+      setProduct({ name: response.data.name, quantity: response.data.quantity, location: response.data.location, image: response.data.image });
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -58,8 +58,8 @@ const EditPage = () => {
               <input type="number" value={product.quantity} onChange={(e) => setProduct({ ...product, quantity: e.target.value })} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Quantity" />
             </div>
             <div>
-              <label htmlFor="price">Price</label>
-              <input type="number" value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Price" />
+              <label htmlFor="location">Location</label>
+              <input type="text" value={product.location} onChange={(e) => setProduct({ ...product, location: e.target.value })} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Location" />
             </div>
             <div>
               <label htmlFor="image">Image URL</label>

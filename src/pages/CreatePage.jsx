@@ -6,20 +6,20 @@ import { toast } from 'react-toastify';
 const CreatePage = () => {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [price, setPrice] = useState("");
+  const [location, setLocation] = useState("");
   const [image, setImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const saveProduct = async (e) => {
     e.preventDefault();
-    if(name === "" || quantity === "" || price === "" || image === "") {
+    if(name === "" || quantity === "" || location === "" || image === "") {
       alert("Please fill out all input fields.");
       return;
     }
     try {
       setIsLoading(true);
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/products`, {name: name, quantity: quantity, price: price, image: image}).then((response) => {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/products`, {name: name, quantity: quantity, location: location, image: image}).then((response) => {
         console.log(response.data);
         toast.success(`Saved ${response.data.name} successfully!`);
         setIsLoading(false);
@@ -47,8 +47,8 @@ const CreatePage = () => {
             <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Quantity" />
           </div>
           <div>
-            <label htmlFor="price">Price</label>
-            <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Price" />
+            <label htmlFor="location">Location</label>
+            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400" placeholder="Enter Location" />
           </div>
           <div>
             <label htmlFor="image">Image URL</label>
