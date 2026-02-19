@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
 import StorePage from "./pages/StorePage";
+import RegisterPage from "./pages/RegisterPage";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route index element={<HomePage />} />
           <Route path="/stores/:id" element={<StorePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/create" element={<CreatePage />} />
           <Route path="/edit/:id" element={<EditPage />} />
         </Routes>
