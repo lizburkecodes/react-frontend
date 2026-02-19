@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { setAuth } from "../auth";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -27,8 +28,7 @@ const LoginPage = () => {
       });
 
       // Save token for later API requests
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setAuth({ token: res.data.token, user: res.data.user });
 
       toast.success(`Welcome back, ${res.data.user.displayName}!`);
       navigate("/");

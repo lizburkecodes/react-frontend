@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { setAuth } from "../auth";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -29,8 +30,7 @@ const RegisterPage = () => {
       });
 
       // Save token + user (auto-login after register)
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setAuth({ token: res.data.token, user: res.data.user });
 
       toast.success(`Welcome, ${res.data.user.displayName}!`);
       navigate("/");
