@@ -8,6 +8,7 @@ import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
 import StorePage from "./pages/StorePage";
 import RegisterPage from "./pages/RegisterPage";
+import CreateStorePage from "./pages/CreateStorePage";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
       <div className="container mx-auto p-2 h-full">
         <Routes>
           <Route index element={<HomePage />} />
+          <Route path="/stores/create" element={<CreateStorePage />} />
           <Route path="/stores/:id" element={<StorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
