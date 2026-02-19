@@ -10,6 +10,9 @@ const StorePage = () => {
   const [isLoadingStore, setIsLoadingStore] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isOwner = user && store && String(store.ownerId) === String(user._id);
+
   const getStore = async () => {
     try {
       setIsLoadingStore(true);
@@ -66,7 +69,18 @@ const StorePage = () => {
         <div className="mt-4">Store not found.</div>
       )}
 
-      <h2 className="text-xl font-semibold mt-6">Products</h2>
+      <div className="flex items-center justify-between mt-6">
+        <h2 className="text-xl font-semibold">Products</h2>
+
+        {isOwner && (
+          <Link
+            to={`/stores/${id}/products/create`}
+            className="text-sm bg-blue-700 text-white rounded-sm px-3 py-2 font-bold hover:bg-blue-600"
+          >
+            + Add Product
+          </Link>
+        )}
+      </div>
 
       {isLoadingProducts ? (
         <div className="mt-3">Loading products...</div>
