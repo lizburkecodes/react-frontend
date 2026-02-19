@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api";
+import { toast } from "react-toastify";
 
 const StorePage = () => {
   const { id } = useParams();
@@ -36,6 +37,21 @@ const StorePage = () => {
       setIsLoadingProducts(false);
     }
   };
+
+  const deleteProduct = async (productId) => {
+  const ok = window.confirm("Delete this product?");
+  if (!ok) return;
+
+  try {
+    await api.delete(`/api/products/${productId}`);
+    toast.success("Product deleted");
+    getProducts(); // refresh list
+  } catch (error) {
+    const msg =
+      error?.response?.data?.message || error?.message || "Delete failed";
+    toast.error(msg);
+  }
+};
 
   useEffect(() => {
     getStore();
@@ -96,6 +112,14 @@ const StorePage = () => {
               <div className="px-4 pt-2 pb-4">
                 <h3 className="font-semibold">{product.name}</h3>
                 <div className="text-sm">Quantity: {product.quantity}</div>
+                {isOwner && (
+                  <button
+                    onClick={() => deleteProduct(product._id)}
+                    className="mt-3 w-full text-center shadow-md text-sm bg-red-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-red-600 hover:cursor-pointer"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}
