@@ -113,12 +113,21 @@ const StorePage = () => {
                 <h3 className="font-semibold">{product.name}</h3>
                 <div className="text-sm">Quantity: {product.quantity}</div>
                 {isOwner && (
-                  <button
-                    onClick={() => deleteProduct(product._id)}
-                    className="mt-3 w-full text-center shadow-md text-sm bg-red-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-red-600 hover:cursor-pointer"
-                  >
-                    Delete
-                  </button>
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      to={`/stores/${id}/products/${product._id}/edit`}
+                      className="w-full text-center shadow-md text-sm bg-gray-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-gray-600 hover:cursor-pointer"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      onClick={() => deleteProduct(product._id)}
+                      className="w-full text-center shadow-md text-sm bg-red-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-red-600 hover:cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
