@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 const StorePage = () => {
   const { id } = useParams();
@@ -13,7 +13,7 @@ const StorePage = () => {
   const getStore = async () => {
     try {
       setIsLoadingStore(true);
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/stores/${id}`);
+      const res = await api.get(`/api/stores/${id}`);
       setStore(res.data);
     } catch (err) {
       console.error("Error fetching store:", err);
@@ -25,7 +25,7 @@ const StorePage = () => {
   const getProducts = async () => {
     try {
       setIsLoadingProducts(true);
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/stores/${id}/products`);
+      const res = await api.get(`/api/stores/${id}/products`);
       setProducts(res.data);
     } catch (err) {
       console.error("Error fetching store products:", err);
