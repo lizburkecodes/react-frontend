@@ -13,6 +13,7 @@ import CreateStorePage from "./pages/CreateStorePage";
 import CreateProductForStorePage from "./pages/CreateProductForStorePage";
 import EditProductForStorePage from "./pages/EditProductForStorePage";
 import EditStorePage from "./pages/EditStorePage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 
 const App = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const App = () => {
                 <span className="text-gray-200 text-sm hidden sm:inline">
                   Hi, {user.displayName}
                 </span>
-
+                
                 <Link
                   to="/stores/create"
                   className="text-sm bg-blue-700 text-white rounded-sm px-3 py-1 font-bold hover:bg-blue-600"
@@ -57,6 +58,12 @@ const App = () => {
                 >
                   Logout
                 </button>
+                <Link
+                  to="/account/password"
+                  className="text-sm bg-gray-600 text-white rounded-sm px-3 py-1 font-bold hover:bg-gray-500"
+                >
+                  Change Password
+                </Link>
               </>
             ) : (
               <>
@@ -87,6 +94,7 @@ const App = () => {
           <Route path="/stores/:id" element={<StorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/account/password" element={<ChangePasswordPage />} />
         </Routes>
       </div>
       <ToastContainer />
