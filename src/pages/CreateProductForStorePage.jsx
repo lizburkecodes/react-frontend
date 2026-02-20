@@ -2,16 +2,29 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
+import { useImageSuggestion } from "../hooks/useImageSuggestion";
 
 const CreateProductForStorePage = () => {
-  const { storeId } = useParams(); // storeId
+  const { storeId } = useParams();
   const navigate = useNavigate();
 
   const [store, setStore] = useState(null);
 
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [image, setImage] = useState("");
+
+  const {
+    image,
+    setImage,
+    setImageLocked,
+    suggested,
+    suggestions,
+    suggestIndex,
+    isSuggesting,
+    fetchSuggestedImage,
+    chooseSuggestion,
+  } = useImageSuggestion(name);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
 
@@ -35,24 +48,29 @@ const CreateProductForStorePage = () => {
   const saveProduct = async (e) => {
     e.preventDefault();
 
-    if (!name || quantity === "" || !image) {
-      toast.error("Please fill out name, quantity, and image.");
+    // image is optional
+    if (!name.trim() || quantity === "") {
+      toast.error("Please fill out name and quantity.");
       return;
     }
+
+    // If user didn't provide image, fall back to suggestion
+    const finalImage = image.trim() || suggested?.imageUrl || "";
 
     try {
       setIsLoading(true);
 
       const res = await api.post(`/api/stores/${storeId}/products`, {
-        name,
+        name: name.trim(),
         quantity: Number(quantity),
-        image,
+        image: finalImage || undefined,
       });
 
       toast.success(`Saved ${res.data.name}!`);
       navigate(`/stores/${storeId}`);
     } catch (error) {
-      const msg = error?.response?.data?.message || error?.message || "Failed to create product";
+      const msg =
+        error?.response?.data?.message || error?.message || "Failed to create product";
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -91,6 +109,9 @@ const CreateProductForStorePage = () => {
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Enter Product Name"
               />
+              <div className="text-xs text-gray-500 mt-1">
+                {isSuggesting ? "Finding an image..." : "\u00A0"}
+              </div>
             </div>
 
             <div>
@@ -106,14 +127,61 @@ const CreateProductForStorePage = () => {
             </div>
 
             <div>
-              <label htmlFor="image">Image URL</label>
+              <label htmlFor="image">Image URL (optional)</label>
               <input
                 type="text"
                 value={image}
-                onChange={(e) => setImage(e.target.value)}
+                onChange={(e) => {
+                  setImageLocked(true);
+                  setImage(e.target.value);
+                }}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
-                placeholder="Enter Image URL"
+                placeholder="Paste an image URL OR use a suggestion"
               />
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => fetchSuggestedImage(name, true)}
+                  disabled={!name.trim() || isSuggesting}
+                  className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200 disabled:opacity-60"
+                >
+                  {isSuggesting ? "Suggesting..." : "Get image options"}
+                </button>
+              </div>
+
+              {suggestions.length > 0 && (
+                <div className="mt-3 border rounded p-3">
+                  <div className="text-sm font-semibold mb-2">Pick an image</div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {suggestions.slice(0, 6).map((s, idx) => (
+                      <button
+                        type="button"
+                        key={s.imageUrl}
+                        onClick={() => chooseSuggestion(idx)}
+                        className={`border rounded overflow-hidden ${idx === suggestIndex ? "ring-2 ring-blue-500" : ""
+                          }`}
+                        title="Use this image"
+                      >
+                        <img src={s.imageUrl} alt="Suggestion" className="w-full h-24 object-cover" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {suggestions[suggestIndex]?.creditUrl && suggestions[suggestIndex]?.creditText && (
+                    <div className="text-xs text-gray-500 mt-2">
+                      <a
+                        href={suggestions[suggestIndex].creditUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:underline"
+                      >
+                        {suggestions[suggestIndex].creditText}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

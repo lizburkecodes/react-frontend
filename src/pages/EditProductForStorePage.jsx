@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
+import { useImageSuggestion } from "../hooks/useImageSuggestion";
 
 const EditProductForStorePage = () => {
   const { storeId, productId } = useParams();
@@ -11,8 +12,21 @@ const EditProductForStorePage = () => {
   const [product, setProduct] = useState({
     name: "",
     quantity: 0,
-    image: "",
   });
+
+  const {
+    image,
+    setImage,
+    imageLocked,
+    setImageLocked,
+    suggested,
+    suggestions,
+    suggestIndex,
+    isSuggesting,
+    fetchSuggestedImage,
+    chooseSuggestion,
+    clearImage,
+  } = useImageSuggestion(product.name);
 
   const getProduct = async () => {
     try {
@@ -21,8 +35,12 @@ const EditProductForStorePage = () => {
       setProduct({
         name: res.data.name || "",
         quantity: res.data.quantity ?? 0,
-        image: res.data.image || "",
       });
+      // If there's an existing image, set it and lock it
+      if (res.data.image) {
+        setImage(res.data.image);
+        setImageLocked(true);
+      }
     } catch (error) {
       const msg = error?.response?.data?.message || error?.message || "Failed to load product";
       toast.error(msg);
@@ -44,13 +62,16 @@ const EditProductForStorePage = () => {
       return;
     }
 
+    // If user didn't provide image, fall back to suggestion
+    const finalImage = image.trim() || suggested?.imageUrl || "";
+
     try {
       setIsLoading(true);
 
       const res = await api.put(`/api/products/${productId}`, {
         name: product.name,
         quantity: Number(product.quantity),
-        image: product.image,
+        image: finalImage || undefined,
       });
 
       toast.success(`Updated ${res.data.name}`);
@@ -103,14 +124,75 @@ const EditProductForStorePage = () => {
               </div>
 
               <div>
-                <label htmlFor="image">Image URL</label>
+                <label htmlFor="image">Image URL (optional)</label>
                 <input
                   type="text"
-                  value={product.image}
-                  onChange={(e) => setProduct({ ...product, image: e.target.value })}
+                  value={image}
+                  onChange={(e) => {
+                    setImageLocked(true);
+                    setImage(e.target.value);
+                  }}
                   className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
-                  placeholder="Enter Image URL"
+                  placeholder="Paste an image URL OR use a suggestion"
                 />
+                <div className="text-xs text-gray-500 mt-1">
+                  {isSuggesting ? "Finding an image..." : "\u00A0"}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => fetchSuggestedImage(product.name, true)}
+                    disabled={!product.name.trim() || isSuggesting}
+                    className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200 disabled:opacity-60"
+                  >
+                    {isSuggesting ? "Suggesting..." : "Get image options"}
+                  </button>
+
+                  {imageLocked && (
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200"
+                    >
+                      Clear image
+                    </button>
+                  )}
+                </div>
+
+                {suggestions.length > 0 && (
+                  <div className="mt-3 border rounded p-3">
+                    <div className="text-sm font-semibold mb-2">Pick an image</div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {suggestions.slice(0, 6).map((s, idx) => (
+                        <button
+                          type="button"
+                          key={s.imageUrl}
+                          onClick={() => chooseSuggestion(idx)}
+                          className={`border rounded overflow-hidden ${
+                            idx === suggestIndex ? "ring-2 ring-blue-500" : ""
+                          }`}
+                          title="Use this image"
+                        >
+                          <img src={s.imageUrl} alt="Suggestion" className="w-full h-24 object-cover" />
+                        </button>
+                      ))}
+                    </div>
+
+                    {suggestions[suggestIndex]?.creditUrl && suggestions[suggestIndex]?.creditText && (
+                      <div className="text-xs text-gray-500 mt-2">
+                        <a
+                          href={suggestions[suggestIndex].creditUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline"
+                        >
+                          {suggestions[suggestIndex].creditText}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>
