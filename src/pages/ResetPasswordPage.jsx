@@ -13,6 +13,12 @@ const ResetPasswordPage = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
 
@@ -80,6 +86,7 @@ const ResetPasswordPage = () => {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full block border p-3 text-gray-600 rounded"
                 placeholder="Enter new password"
               />
@@ -90,6 +97,7 @@ const ResetPasswordPage = () => {
               <input
                 type="password"
                 value={confirmNewPassword}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                 className="w-full block border p-3 text-gray-600 rounded"
                 placeholder="Confirm new password"

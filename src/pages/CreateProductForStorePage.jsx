@@ -45,6 +45,12 @@ const CreateProductForStorePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId]);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const saveProduct = async (e) => {
     e.preventDefault();
 
@@ -106,6 +112,7 @@ const CreateProductForStorePage = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Enter Product Name"
               />
@@ -121,6 +128,7 @@ const CreateProductForStorePage = () => {
                 min="0"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Enter Quantity"
               />
@@ -134,6 +142,7 @@ const CreateProductForStorePage = () => {
                 onChange={(e) => {
                   setImageLocked(true);
                   setImage(e.target.value);
+                onKeyDown={handleKeyDown}
                 }}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Paste an image URL OR use a suggestion"

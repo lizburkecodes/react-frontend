@@ -11,6 +11,12 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -55,6 +61,7 @@ const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
               placeholder="Enter Email"
               autoComplete="email"
@@ -66,6 +73,7 @@ const LoginPage = () => {
             <input
               type="password"
               value={password}
+              onKeyDown={handleKeyDown}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
               placeholder="Enter Password"

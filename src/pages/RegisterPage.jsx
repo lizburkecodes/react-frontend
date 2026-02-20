@@ -12,6 +12,12 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -57,6 +63,7 @@ const RegisterPage = () => {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
               placeholder="Enter Display Name"
             />
@@ -67,6 +74,7 @@ const RegisterPage = () => {
             <input
               type="email"
               value={email}
+              onKeyDown={handleKeyDown}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
               placeholder="Enter Email"
@@ -80,6 +88,7 @@ const RegisterPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
               placeholder="Create Password"
               autoComplete="new-password"

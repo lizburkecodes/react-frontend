@@ -43,6 +43,12 @@ const EditStorePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const isOwner = user && store && String(store.ownerId) === String(user._id);
 
   const updateStore = async (e) => {
@@ -101,6 +107,7 @@ const EditStorePage = () => {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onKeyDown={handleKeyDown}
                   className="w-full block border p-3 text-gray-600 rounded"
                   placeholder="Enter Store Name"
                 />
@@ -112,6 +119,7 @@ const EditStorePage = () => {
                   type="text"
                   value={form.addressText}
                   onChange={(e) => setForm({ ...form, addressText: e.target.value })}
+                  onKeyDown={handleKeyDown}
                   className="w-full block border p-3 text-gray-600 rounded"
                   placeholder="City, State ZIP"
                 />
@@ -122,6 +130,7 @@ const EditStorePage = () => {
                 <input
                   type="text"
                   value={form.image}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                   className="w-full block border p-3 text-gray-600 rounded"
                   placeholder="Enter Image URL"

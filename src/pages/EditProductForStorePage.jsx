@@ -54,6 +54,12 @@ const EditProductForStorePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const updateProduct = async (e) => {
     e.preventDefault();
 
@@ -106,6 +112,7 @@ const EditProductForStorePage = () => {
                   type="text"
                   value={product.name}
                   onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                  onKeyDown={handleKeyDown}
                   className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                   placeholder="Enter Name"
                 />
@@ -118,6 +125,7 @@ const EditProductForStorePage = () => {
                   min="0"
                   value={product.quantity}
                   onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+                  onKeyDown={handleKeyDown}
                   className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                   placeholder="Enter Quantity"
                 />
@@ -131,6 +139,7 @@ const EditProductForStorePage = () => {
                   onChange={(e) => {
                     setImageLocked(true);
                     setImage(e.target.value);
+                  onKeyDown={handleKeyDown}
                   }}
                   className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                   placeholder="Paste an image URL OR use a suggestion"

@@ -11,6 +11,12 @@ const CreateStorePage = () => {
   const [image, setImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const saveStore = async (e) => {
     e.preventDefault();
 
@@ -57,6 +63,7 @@ const CreateStorePage = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Enter Store Name"
               />
@@ -67,6 +74,7 @@ const CreateStorePage = () => {
               <input
                 type="text"
                 value={addressText}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setAddressText(e.target.value)}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="e.g. Tampa, FL 33602"
@@ -78,6 +86,7 @@ const CreateStorePage = () => {
               <input
                 type="text"
                 value={image}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setImage(e.target.value)}
                 className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
                 placeholder="Enter Image URL"

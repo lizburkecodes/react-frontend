@@ -8,6 +8,12 @@ const ForgotPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
 
@@ -60,6 +66,7 @@ const ForgotPasswordPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full block border p-3 text-gray-600 rounded"
                 placeholder="Enter your email"
               />
