@@ -14,6 +14,8 @@ import CreateProductForStorePage from "./pages/CreateProductForStorePage";
 import EditProductForStorePage from "./pages/EditProductForStorePage";
 import EditStorePage from "./pages/EditStorePage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
   const navigate = useNavigate();
@@ -95,6 +97,8 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/account/password" element={<ChangePasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </div>
       <ToastContainer />

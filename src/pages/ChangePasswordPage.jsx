@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
-import { getUser } from "../auth";
+import { getUser, clearAuth } from "../auth";
 
 const ChangePasswordPage = () => {
   const navigate = useNavigate();
@@ -38,12 +38,14 @@ const ChangePasswordPage = () => {
         newPassword,
       });
 
-      toast.success("Password updated successfully!");
+      toast.success("Password updated successfully. Please log in again.");
+      clearAuth();
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
 
-      navigate("/"); // or navigate("/login") if you decide to force re-login later
+      navigate("/login");
     } catch (error) {
       const msg =
         error?.response?.data?.message || error?.message || "Password change failed";
