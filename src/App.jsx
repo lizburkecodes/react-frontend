@@ -12,6 +12,7 @@ import RegisterPage from "./pages/RegisterPage";
 import CreateStorePage from "./pages/CreateStorePage";
 import CreateProductForStorePage from "./pages/CreateProductForStorePage";
 import EditProductForStorePage from "./pages/EditProductForStorePage";
+import EditStorePage from "./pages/EditStorePage";
 
 const App = () => {
   const navigate = useNavigate();
@@ -82,6 +83,7 @@ const App = () => {
           <Route path="/stores/create" element={<CreateStorePage />} />
           <Route path="/stores/:storeId/products/create" element={<CreateProductForStorePage />} />
           <Route path="/stores/:storeId/products/:productId/edit" element={<EditProductForStorePage />} />
+          <Route path="/stores/:id/edit" element={<EditStorePage />} />
           <Route path="/stores/:id" element={<StorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

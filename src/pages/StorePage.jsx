@@ -79,6 +79,16 @@ const StorePage = () => {
           <div className="p-4">
             <h1 className="text-2xl font-bold">{store.name}</h1>
             <div className="text-gray-700 mt-1">{store.addressText}</div>
+            {isOwner && (
+              <div className="mt-3">
+                <Link
+                  to={`/stores/${id}/edit`}
+                  className="inline-block bg-gray-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-gray-600"
+                >
+                  Edit Store
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       ) : (
