@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import api from "../api";
+import usePagination from "../hooks/usePagination";
+import { PaginationControls } from "../components/PaginationControls";
 
 const HomePage = () => {
-  const [stores, setStores] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
   const [q, setQ] = useState("");
   const [location, setLocation] = useState("");
 
@@ -21,20 +20,18 @@ const HomePage = () => {
   const [radiusKm, setRadiusKm] = useState(10);
   const [geoError, setGeoError] = useState("");
 
-  const getStores = async () => {
-    try {
-      setIsLoading(true);
-      const response = await api.get("/api/stores");
-      setStores(response.data);
-    } catch (error) {
-      console.error("Error fetching stores:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Pagination for stores
+  const storesPageination = usePagination(
+    async (params) => {
+      const response = await api.get("/api/stores", { params });
+      return response.data;
+    },
+    20
+  );
 
   useEffect(() => {
-    getStores();
+    storesPageination.fetch(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const clearSearch = () => {
@@ -249,12 +246,12 @@ const HomePage = () => {
         </div>
       )}
       {!isSearchMode && (
-        <div className="grid ...">
+        <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
-            {isLoading ? (
+            {storesPageination.isLoading ? (
               "Loading..."
-            ) : stores.length > 0 ? (
-              stores.map((store) => (
+            ) : storesPageination.data.length > 0 ? (
+              storesPageination.data.map((store) => (
                 <Link
                   key={store._id}
                   to={`/stores/${store._id}`}
@@ -276,6 +273,17 @@ const HomePage = () => {
               <div>No stores available.</div>
             )}
           </div>
+
+          {storesPageination.totalPages > 1 && (
+            <PaginationControls
+              currentPage={storesPageination.currentPage}
+              totalPages={storesPageination.totalPages}
+              onPrevious={storesPageination.prevPage}
+              onNext={storesPageination.nextPage}
+              onGoToPage={storesPageination.goToPage}
+              isLoading={storesPageination.isLoading}
+            />
+          )}
         </div>
       )}
     </div>

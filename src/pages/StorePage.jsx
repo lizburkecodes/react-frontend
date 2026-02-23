@@ -2,14 +2,23 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api";
 import { toast } from "react-toastify";
+import usePagination from "../hooks/usePagination";
+import { PaginationControls } from "../components/PaginationControls";
 
 const StorePage = () => {
   const { id } = useParams();
 
   const [store, setStore] = useState(null);
-  const [products, setProducts] = useState([]);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  // Pagination for products
+  const productsPagination = usePagination(
+    async (params) => {
+      const response = await api.get(`/api/stores/${id}/products`, { params });
+      return response.data;
+    },
+    20
+  );
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isOwner = user && store && String(store.ownerId) === String(user._id);
@@ -26,36 +35,24 @@ const StorePage = () => {
     }
   };
 
-  const getProducts = async () => {
+  const deleteProduct = async (productId) => {
+    const ok = window.confirm("Delete this product?");
+    if (!ok) return;
+
     try {
-      setIsLoadingProducts(true);
-      const res = await api.get(`/api/stores/${id}/products`);
-      setProducts(res.data);
-    } catch (err) {
-      console.error("Error fetching store products:", err);
-    } finally {
-      setIsLoadingProducts(false);
+      await api.delete(`/api/products/${productId}`);
+      toast.success("Product deleted");
+      productsPagination.fetch(productsPagination.currentPage); // refresh list
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message || error?.message || "Delete failed";
+      toast.error(msg);
     }
   };
 
-  const deleteProduct = async (productId) => {
-  const ok = window.confirm("Delete this product?");
-  if (!ok) return;
-
-  try {
-    await api.delete(`/api/products/${productId}`);
-    toast.success("Product deleted");
-    getProducts(); // refresh list
-  } catch (error) {
-    const msg =
-      error?.response?.data?.message || error?.message || "Delete failed";
-    toast.error(msg);
-  }
-};
-
   useEffect(() => {
     getStore();
-    getProducts();
+    productsPagination.fetch(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -108,41 +105,54 @@ const StorePage = () => {
         )}
       </div>
 
-      {isLoadingProducts ? (
+      {productsPagination.isLoading ? (
         <div className="mt-3">Loading products...</div>
-      ) : products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {products.map((product) => (
-            <div key={product._id} className="bg-white rounded shadow-lg overflow-hidden">
-              {product.image ? (
-                <img src={product.image} className="w-full h-28 object-cover" />
-              ) : (
-                <div className="w-full h-28 bg-gray-200" />
-              )}
-              <div className="px-4 pt-2 pb-4">
-                <h3 className="font-semibold">{product.name}</h3>
-                <div className="text-sm">Quantity: {product.quantity}</div>
-                {isOwner && (
-                  <div className="mt-3 flex gap-2">
-                    <Link
-                      to={`/stores/${id}/products/${product._id}/edit`}
-                      className="w-full text-center shadow-md text-sm bg-gray-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-gray-600 hover:cursor-pointer"
-                    >
-                      Edit
-                    </Link>
-
-                    <button
-                      onClick={() => deleteProduct(product._id)}
-                      className="w-full text-center shadow-md text-sm bg-red-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-red-600 hover:cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </div>
+      ) : productsPagination.data.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            {productsPagination.data.map((product) => (
+              <div key={product._id} className="bg-white rounded shadow-lg overflow-hidden">
+                {product.image ? (
+                  <img src={product.image} className="w-full h-28 object-cover" />
+                ) : (
+                  <div className="w-full h-28 bg-gray-200" />
                 )}
+                <div className="px-4 pt-2 pb-4">
+                  <h3 className="font-semibold">{product.name}</h3>
+                  <div className="text-sm">Quantity: {product.quantity}</div>
+                  {isOwner && (
+                    <div className="mt-3 flex gap-2">
+                      <Link
+                        to={`/stores/${id}/products/${product._id}/edit`}
+                        className="w-full text-center shadow-md text-sm bg-gray-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-gray-600 hover:cursor-pointer"
+                      >
+                        Edit
+                      </Link>
+
+                      <button
+                        onClick={() => deleteProduct(product._id)}
+                        className="w-full text-center shadow-md text-sm bg-red-700 text-white rounded-sm px-4 py-1 font-bold hover:bg-red-600 hover:cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {productsPagination.totalPages > 1 && (
+            <PaginationControls
+              currentPage={productsPagination.currentPage}
+              totalPages={productsPagination.totalPages}
+              onPrevious={productsPagination.prevPage}
+              onNext={productsPagination.nextPage}
+              onGoToPage={productsPagination.goToPage}
+              isLoading={productsPagination.isLoading}
+            />
+          )}
+        </>
       ) : (
         <div className="mt-3">No products in this store yet.</div>
       )}
