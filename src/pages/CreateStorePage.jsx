@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
+import { validateProductName, validateLocation, validateImageUrl } from "../validation";
 
 const CreateStorePage = () => {
   const navigate = useNavigate();
@@ -9,7 +10,40 @@ const CreateStorePage = () => {
   const [name, setName] = useState("");
   const [addressText, setAddressText] = useState("");
   const [image, setImage] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [addressError, setAddressError] = useState("");
+  const [imageError, setImageError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    if (value) {
+      setNameError(validateProductName(value) || "");
+    } else {
+      setNameError("");
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setAddressText(value);
+    if (value) {
+      setAddressError(validateLocation(value) || "");
+    } else {
+      setAddressError("");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const value = e.target.value;
+    setImage(value);
+    if (value) {
+      setImageError(validateImageUrl(value) || "");
+    } else {
+      setImageError("");
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -20,8 +54,20 @@ const CreateStorePage = () => {
   const saveStore = async (e) => {
     e.preventDefault();
 
-    if (!name || !addressText) {
-      toast.error("Please enter a store name and address.");
+    const nameErr = validateProductName(name);
+    const addressErr = validateLocation(addressText);
+    const imageErr = image ? validateImageUrl(image) : null;
+
+    if (nameErr) {
+      setNameError(nameErr);
+      return;
+    }
+    if (addressErr) {
+      setAddressError(addressErr);
+      return;
+    }
+    if (imageErr) {
+      setImageError(imageErr);
       return;
     }
 
@@ -62,11 +108,14 @@ const CreateStorePage = () => {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={handleNameChange}
                 onKeyDown={handleKeyDown}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  nameError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="Enter Store Name"
               />
+              {nameError && <p className="text-xs text-red-500 mt-1">{nameError}</p>}
             </div>
 
             <div>
@@ -75,10 +124,13 @@ const CreateStorePage = () => {
                 type="text"
                 value={addressText}
                 onKeyDown={handleKeyDown}
-                onChange={(e) => setAddressText(e.target.value)}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                onChange={handleAddressChange}
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  addressError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="e.g. Tampa, FL 33602"
               />
+              {addressError && <p className="text-xs text-red-500 mt-1">{addressError}</p>}
             </div>
 
             <div>
@@ -87,17 +139,20 @@ const CreateStorePage = () => {
                 type="text"
                 value={image}
                 onKeyDown={handleKeyDown}
-                onChange={(e) => setImage(e.target.value)}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                onChange={handleImageChange}
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  imageError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="Enter Image URL"
               />
+              {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
             </div>
 
             <div>
               <button
                 className="block w-full mt-6 bg-blue-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-blue-600 hover:cursor-pointer disabled:opacity-60"
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !!nameError || !!addressError || !!imageError}
               >
                 {isLoading ? "Creating..." : "Create Store"}
               </button>

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setAuth } from "../auth";
+import { validateEmail, validatePassword, validateDisplayName, getPasswordStrengthIndicators } from "../validation";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -10,7 +11,46 @@ const RegisterPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayNameError, setDisplayNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Calculate password strength - will update on every password change
+  const passwordStrength = getPasswordStrengthIndicators(password);
+  
+  // Debug: log to console
+  console.log('RegisterPage: password=', password, 'passwordStrength=', passwordStrength);
+
+  const handleDisplayNameChange = (e) => {
+    const value = e.target.value;
+    setDisplayName(value);
+    if (value) {
+      setDisplayNameError(validateDisplayName(value) || "");
+    } else {
+      setDisplayNameError("");
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (value) {
+      setEmailError(validateEmail(value) || "");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (value) {
+      setPasswordError(validatePassword(value) || "");
+    } else {
+      setPasswordError("");
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -21,8 +61,21 @@ const RegisterPage = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!displayName || !email || !password) {
-      toast.error("Please fill out all fields.");
+    // Final validation
+    const displayNameErr = validateDisplayName(displayName);
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+
+    if (displayNameErr) {
+      setDisplayNameError(displayNameErr);
+      return;
+    }
+    if (emailErr) {
+      setEmailError(emailErr);
+      return;
+    }
+    if (passwordErr) {
+      setPasswordError(passwordErr);
       return;
     }
 
@@ -62,11 +115,14 @@ const RegisterPage = () => {
             <input
               type="text"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={handleDisplayNameChange}
               onKeyDown={handleKeyDown}
-              className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                displayNameError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter Display Name"
             />
+            {displayNameError && <p className="text-xs text-red-500 mt-1">{displayNameError}</p>}
           </div>
 
           <div>
@@ -75,11 +131,14 @@ const RegisterPage = () => {
               type="email"
               value={email}
               onKeyDown={handleKeyDown}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+              onChange={handleEmailChange}
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                emailError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter Email"
               autoComplete="email"
             />
+            {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
           </div>
 
           <div>
@@ -87,19 +146,47 @@ const RegisterPage = () => {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               onKeyDown={handleKeyDown}
-              className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                passwordError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Create Password"
               autoComplete="new-password"
             />
+            {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
+            
+            {/* Password strength indicator - always show when user is typing */}
+            {password && (
+              <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 bg-gray-300 rounded-full h-2 overflow-hidden">
+                    <div
+                      style={{
+                        width: `${Math.min(25 + (passwordStrength.score * 20), 100)}%`,
+                        height: '100%'
+                      }}
+                      className={`rounded-full transition-all ${
+                        passwordStrength.score === 0 ? 'bg-red-500' :
+                        passwordStrength.score === 1 ? 'bg-orange-500' :
+                        passwordStrength.score === 2 ? 'bg-yellow-500' :
+                        passwordStrength.score === 3 ? 'bg-lime-500' :
+                        'bg-green-500'
+                      }`}
+                    />
+                  </div>
+                  <span className="font-semibold capitalize text-sm text-gray-700 min-w-fit">{passwordStrength.label}</span>
+                </div>
+                <p className="text-xs text-gray-600">{passwordStrength.message}</p>
+              </div>
+            )}
           </div>
 
           <div>
             <button
               className="block w-full mt-6 bg-blue-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-blue-600 hover:cursor-pointer disabled:opacity-60"
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !!displayNameError || !!emailError || !!passwordError}
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>

@@ -3,25 +3,63 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setAuth } from "../auth";
+import { validateEmail, validatePassword } from "../validation";
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    // Validate on change for real-time feedback
+    if (value) {
+      setEmailError(validateEmail(value) || "");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    // Show error only if user started typing and it's invalid
+    if (value && value.length > 0) {
+      // For login, just check if password is provided (not full validation)
+      if (value.length < 1) {
+        setPasswordError("Password is required");
+      } else {
+        setPasswordError("");
+      }
+    } else {
+      setPasswordError("");
+    }
+  };
+
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+    if (e.key === "Enter" && !emailError && !passwordError && email && password) {
+      handleLogin(e);
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please enter email and password.");
+    // Final validation before submit
+    const emailErr = validateEmail(email);
+    const passwordErr = password ? "" : "Password is required";
+
+    if (emailErr) {
+      setEmailError(emailErr);
+      return;
+    }
+    if (passwordErr) {
+      setPasswordError(passwordErr);
       return;
     }
 
@@ -60,12 +98,15 @@ const LoginPage = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               onKeyDown={handleKeyDown}
-              className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                emailError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter Email"
               autoComplete="email"
             />
+            {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
           </div>
 
           <div>
@@ -74,18 +115,21 @@ const LoginPage = () => {
               type="password"
               value={password}
               onKeyDown={handleKeyDown}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+              onChange={handlePasswordChange}
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                passwordError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter Password"
               autoComplete="current-password"
             />
+            {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
           </div>
 
           <div>
             <button
               className="block w-full mt-6 bg-blue-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-blue-600 hover:cursor-pointer disabled:opacity-60"
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !!emailError || (password && !password.trim())}
             >
               {isLoading ? "Logging in..." : "Log In"}
             </button>

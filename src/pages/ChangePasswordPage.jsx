@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { getUser, clearAuth } from "../auth";
+import { validatePassword, validatePasswordDifference, validatePasswordsMatch, getPasswordStrengthIndicators } from "../validation";
 
 const ChangePasswordPage = () => {
   const navigate = useNavigate();
@@ -11,23 +12,74 @@ const ChangePasswordPage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [currentPasswordError, setCurrentPasswordError] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Calculate password strength for new password
+  const passwordStrength = getPasswordStrengthIndicators(newPassword);
+
+  const handleCurrentPasswordChange = (e) => {
+    const value = e.target.value;
+    setCurrentPassword(value);
+    if (value) {
+      setCurrentPasswordError("");
+    }
+  };
+
+  const handleNewPasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+    if (value) {
+      const err = validatePassword(value);
+      setNewPasswordError(err || "");
+      // Also check if confirm password matches
+      if (confirmNewPassword) {
+        const matchErr = validatePasswordsMatch(value, confirmNewPassword);
+        setConfirmPasswordError(matchErr || "");
+      }
+    } else {
+      setNewPasswordError("");
+      setConfirmPasswordError("");
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const value = e.target.value;
+    setConfirmNewPassword(value);
+    if (value) {
+      const matchErr = validatePasswordsMatch(newPassword, value);
+      setConfirmPasswordError(matchErr || "");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
-      toast.error("Please fill out all fields.");
+    // Validate all fields
+    if (!currentPassword) {
+      setCurrentPasswordError("Current password is required");
       return;
     }
 
-    if (newPassword.length < 8) {
-      toast.error("New password must be at least 8 characters.");
+    const newPasswordErr = validatePassword(newPassword);
+    if (newPasswordErr) {
+      setNewPasswordError(newPasswordErr);
       return;
     }
 
-    if (newPassword !== confirmNewPassword) {
-      toast.error("New passwords do not match.");
+    const diffErr = validatePasswordDifference(currentPassword, newPassword);
+    if (diffErr) {
+      setNewPasswordError(diffErr);
+      return;
+    }
+
+    const matchErr = validatePasswordsMatch(newPassword, confirmNewPassword);
+    if (matchErr) {
+      setConfirmPasswordError(matchErr);
       return;
     }
 
@@ -86,10 +138,13 @@ const ChangePasswordPage = () => {
             <input
               type="password"
               value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full block border p-3 text-gray-600 rounded"
+              onChange={handleCurrentPasswordChange}
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 ${
+                currentPasswordError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter current password"
             />
+            {currentPasswordError && <p className="text-xs text-red-500 mt-1">{currentPasswordError}</p>}
           </div>
 
           <div>
@@ -97,10 +152,37 @@ const ChangePasswordPage = () => {
             <input
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full block border p-3 text-gray-600 rounded"
+              onChange={handleNewPasswordChange}
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 ${
+                newPasswordError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Enter new password"
             />
+            {/* Password strength indicator for new password */}
+            {newPassword && (
+              <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 bg-gray-300 rounded-full h-2 overflow-hidden">
+                    <div
+                      style={{
+                        width: `${Math.min(25 + (passwordStrength.score * 20), 100)}%`,
+                        height: '100%'
+                      }}
+                      className={`rounded-full transition-all ${
+                        passwordStrength.score === 0 ? 'bg-red-500' :
+                        passwordStrength.score === 1 ? 'bg-orange-500' :
+                        passwordStrength.score === 2 ? 'bg-yellow-500' :
+                        passwordStrength.score === 3 ? 'bg-lime-500' :
+                        'bg-green-500'
+                      }`}
+                    />
+                  </div>
+                  <span className="font-semibold capitalize text-sm text-gray-700 min-w-fit">{passwordStrength.label}</span>
+                </div>
+                <p className="text-xs text-gray-600">{passwordStrength.message}</p>
+              </div>
+            )}
+            {newPasswordError && <p className="text-xs text-red-500 mt-1">{newPasswordError}</p>}
           </div>
 
           <div>
@@ -108,24 +190,27 @@ const ChangePasswordPage = () => {
             <input
               type="password"
               value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="w-full block border p-3 text-gray-600 rounded"
+              onChange={handleConfirmPasswordChange}
+              className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 ${
+                confirmPasswordError ? "border-red-500 focus:border-red-500" : ""
+              }`}
               placeholder="Confirm new password"
             />
+            {confirmPasswordError && <p className="text-xs text-red-500 mt-1">{confirmPasswordError}</p>}
           </div>
 
           <div>
             <button
               className="block w-full mt-6 bg-blue-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-blue-600 disabled:opacity-60"
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !currentPassword || !!newPasswordError || !!confirmPasswordError}
             >
               {isLoading ? "Saving..." : "Update Password"}
             </button>
           </div>
 
           <div className="text-xs text-gray-500 mt-2">
-            Tip: Use at least 8 characters.
+            Password must be at least 8 characters with a number and special character.
           </div>
         </div>
       </form>

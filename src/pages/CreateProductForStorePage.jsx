@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { useImageSuggestion } from "../hooks/useImageSuggestion";
+import { validateProductName, validateQuantity, validateImageUrl } from "../validation";
 
 const CreateProductForStorePage = () => {
   const { storeId } = useParams();
@@ -12,6 +13,9 @@ const CreateProductForStorePage = () => {
 
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [quantityError, setQuantityError] = useState("");
+  const [imageError, setImageError] = useState("");
 
   const {
     image,
@@ -45,6 +49,37 @@ const CreateProductForStorePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId]);
 
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    if (value) {
+      setNameError(validateProductName(value) || "");
+    } else {
+      setNameError("");
+    }
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    setQuantity(value);
+    if (value !== "") {
+      setQuantityError(validateQuantity(value) || "");
+    } else {
+      setQuantityError("");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const value = e.target.value;
+    setImageLocked(true);
+    setImage(value);
+    if (value) {
+      setImageError(validateImageUrl(value) || "");
+    } else {
+      setImageError("");
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -54,9 +89,20 @@ const CreateProductForStorePage = () => {
   const saveProduct = async (e) => {
     e.preventDefault();
 
-    // image is optional
-    if (!name.trim() || quantity === "") {
-      toast.error("Please fill out name and quantity.");
+    const nameErr = validateProductName(name);
+    const quantityErr = validateQuantity(quantity);
+    const imageErr = image ? validateImageUrl(image) : null;
+
+    if (nameErr) {
+      setNameError(nameErr);
+      return;
+    }
+    if (quantityErr) {
+      setQuantityError(quantityErr);
+      return;
+    }
+    if (imageErr) {
+      setImageError(imageErr);
       return;
     }
 
@@ -111,11 +157,14 @@ const CreateProductForStorePage = () => {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={handleNameChange}
                 onKeyDown={handleKeyDown}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  nameError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="Enter Product Name"
               />
+              {nameError && <p className="text-xs text-red-500 mt-1">{nameError}</p>}
               <div className="text-xs text-gray-500 mt-1">
                 {isSuggesting ? "Finding an image..." : "\u00A0"}
               </div>
@@ -127,11 +176,14 @@ const CreateProductForStorePage = () => {
                 type="number"
                 min="0"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={handleQuantityChange}
                 onKeyDown={handleKeyDown}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  quantityError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="Enter Quantity"
               />
+              {quantityError && <p className="text-xs text-red-500 mt-1">{quantityError}</p>}
             </div>
 
             <div>
@@ -139,14 +191,14 @@ const CreateProductForStorePage = () => {
               <input
                 type="text"
                 value={image}
-                onChange={(e) => {
-                  setImageLocked(true);
-                  setImage(e.target.value);
+                onChange={handleImageChange}
                 onKeyDown={handleKeyDown}
-                }}
-                className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${
+                  imageError ? "border-red-500 focus:border-red-500" : ""
+                }`}
                 placeholder="Paste an image URL OR use a suggestion"
               />
+              {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
               <div className="flex gap-2 mt-2">
                 <button
                   type="button"
@@ -197,7 +249,7 @@ const CreateProductForStorePage = () => {
               <button
                 className="block w-full mt-6 bg-blue-700 text-white rounded-sm px-4 py-2 font-bold hover:bg-blue-600 hover:cursor-pointer disabled:opacity-60"
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !!nameError || !!quantityError || !!imageError}
               >
                 {isLoading ? "Saving..." : "Save Product"}
               </button>
