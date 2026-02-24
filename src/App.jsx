@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { getUser, clearAuth, AUTH_CHANGED_EVENT } from "./auth";
-import api from "./api";
+import api, { fetchCSRFToken } from "./api";
 
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -21,6 +21,11 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 const App = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(getUser());
+
+  useEffect(() => {
+    // Fetch CSRF token on app initialization
+    fetchCSRFToken();
+  }, []);
 
   useEffect(() => {
     const onAuthChanged = () => setUser(getUser());

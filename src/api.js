@@ -6,6 +6,48 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Store CSRF token in memory
+let csrfToken = null;
+
+/**
+ * Fetch CSRF token from server
+ * Called once on app initialization and before any state-changing request
+ */
+export const fetchCSRFToken = async () => {
+  try {
+    const response = await api.get("/api/auth/csrf-token");
+    csrfToken = response.data.csrfToken;
+    return csrfToken;
+  } catch (error) {
+    console.error("Failed to fetch CSRF token:", error);
+    // Continue without CSRF token - server will reject if required
+  }
+};
+
+/**
+ * Get the current CSRF token
+ * Returns token or null if not yet fetched
+ */
+export const getCSRFToken = () => {
+  return csrfToken;
+};
+
+/**
+ * Request interceptor: Add CSRF token to headers for state-changing requests
+ */
+api.interceptors.request.use(
+  (config) => {
+    // Add CSRF token to headers for POST, PUT, DELETE requests
+    if (csrfToken && ['post', 'put', 'delete'].includes(config.method?.toLowerCase())) {
+      config.headers['X-CSRF-Token'] = csrfToken;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Track if we're currently refreshing to prevent multiple refresh requests
 let isRefreshing = false;
 let failedQueue = [];
