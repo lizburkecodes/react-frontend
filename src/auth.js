@@ -34,3 +34,7 @@ export function clearAuth() {
   sessionStorage.removeItem("user");
   window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
+
+export function isAuthenticated() {
+  return !!currentUser;
+}

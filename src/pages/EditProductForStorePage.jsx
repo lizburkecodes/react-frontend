@@ -54,6 +54,33 @@ const EditProductForStorePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
+  const handleNameChange = (value) => {
+    setProduct({ ...product, name: value });
+    if (value) {
+      setNameError(validateProductName(value) || "");
+    } else {
+      setNameError("");
+    }
+  };
+
+  const handleQuantityChange = (value) => {
+    setProduct({ ...product, quantity: value });
+    if (value !== "") {
+      setQuantityError(validateQuantity(value) || "");
+    } else {
+      setQuantityError("");
+    }
+  };
+
+  const handleImageChange = (value) => {
+    setImage(value);
+    if (value) {
+      setImageError(validateImageUrl(value) || "");
+    } else {
+      setImageError("");
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -63,8 +90,20 @@ const EditProductForStorePage = () => {
   const updateProduct = async (e) => {
     e.preventDefault();
 
-    if (!product.name || product.quantity === "" || product.quantity == null) {
-      toast.error("Please enter name and quantity.");
+    const nameErr = validateProductName(product.name);
+    const quantityErr = validateQuantity(product.quantity);
+    const imageErr = image ? validateImageUrl(image) : null;
+
+    if (nameErr) {
+      setNameError(nameErr);
+      return;
+    }
+    if (quantityErr) {
+      setQuantityError(quantityErr);
+      return;
+    }
+    if (imageErr) {
+      setImageError(imageErr);
       return;
     }
 
@@ -111,11 +150,12 @@ const EditProductForStorePage = () => {
                 <input
                   type="text"
                   value={product.name}
-                  onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                  className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${nameError ? "border-red-500 focus:border-red-500" : ""}`}
                   placeholder="Enter Name"
                 />
+                {nameError && <p className="text-xs text-red-500 mt-1">{nameError}</p>}
               </div>
 
               <div>
@@ -124,11 +164,12 @@ const EditProductForStorePage = () => {
                   type="number"
                   min="0"
                   value={product.quantity}
-                  onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+                  onChange={(e) => handleQuantityChange(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                  className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${quantityError ? "border-red-500 focus:border-red-500" : ""}`}
                   placeholder="Enter Quantity"
                 />
+                {quantityError && <p className="text-xs text-red-500 mt-1">{quantityError}</p>}
               </div>
 
               <div>
@@ -138,12 +179,13 @@ const EditProductForStorePage = () => {
                   value={image}
                   onChange={(e) => {
                     setImageLocked(true);
-                    setImage(e.target.value);
-                  onKeyDown={handleKeyDown}
+                    handleImageChange(e.target.value);
                   }}
-                  className="w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400"
+                  onKeyDown={handleKeyDown}
+                  className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${imageError ? "border-red-500 focus:border-red-500" : ""}`}
                   placeholder="Paste an image URL OR use a suggestion"
                 />
+                {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
                 <div className="text-xs text-gray-500 mt-1">
                   {isSuggesting ? "Finding an image..." : "\u00A0"}
                 </div>

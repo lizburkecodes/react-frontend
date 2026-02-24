@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { getUser, clearAuth, AUTH_CHANGED_EVENT } from "./auth";
+import { getUser, clearUser, AUTH_CHANGED_EVENT } from "./auth";
+import api from "./api";
 
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -27,9 +28,17 @@ const App = () => {
     return () => window.removeEventListener(AUTH_CHANGED_EVENT, onAuthChanged);
   }, []);
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint to invalidate refresh tokens
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still logout locally even if backend call fails
+    } finally {
+      clearUser();
+      navigate("/login");
+    }
   };
 
   return (

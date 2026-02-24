@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { setAuth } from "../auth";
+import { setUser } from "../auth";
 import { validateEmail, validatePassword, validateDisplayName, getPasswordStrengthIndicators } from "../validation";
 
 const RegisterPage = () => {
