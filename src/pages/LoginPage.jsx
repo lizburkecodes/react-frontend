@@ -71,8 +71,12 @@ const LoginPage = () => {
         password,
       });
 
-      // Save token for later API requests
-      setAuth({ token: res.data.token, user: res.data.user });
+      // Save tokens for later API requests
+      setAuth({ 
+        accessToken: res.data.accessToken, 
+        refreshToken: res.data.refreshToken,
+        user: res.data.user 
+      });
 
       toast.success(`Welcome back, ${res.data.user.displayName}!`);
       navigate("/");

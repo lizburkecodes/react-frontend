@@ -88,8 +88,12 @@ const RegisterPage = () => {
         password,
       });
 
-      // Save token + user (auto-login after register)
-      setAuth({ token: res.data.token, user: res.data.user });
+      // Save tokens + user (auto-login after register)
+      setAuth({ 
+        accessToken: res.data.accessToken, 
+        refreshToken: res.data.refreshToken,
+        user: res.data.user 
+      });
 
       toast.success(`Welcome, ${res.data.user.displayName}!`);
       navigate("/");
