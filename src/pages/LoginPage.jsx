@@ -69,10 +69,13 @@ const LoginPage = () => {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         email,
         password,
+      }, {
+        // Enable sending/receiving cookies
+        withCredentials: true,
       });
 
-      // Save token for later API requests
-      setAuth({ token: res.data.token, user: res.data.user });
+      // Save user data (token is in HttpOnly cookie, set automatically by server)
+      setAuth({ user: res.data.user });
 
       toast.success(`Welcome back, ${res.data.user.displayName}!`);
       navigate("/");

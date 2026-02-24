@@ -86,10 +86,13 @@ const RegisterPage = () => {
         displayName,
         email,
         password,
+      }, {
+        // Enable sending/receiving cookies
+        withCredentials: true,
       });
 
-      // Save token + user (auto-login after register)
-      setAuth({ token: res.data.token, user: res.data.user });
+      // Save user data (token is in HttpOnly cookie, set automatically by server)
+      setAuth({ user: res.data.user });
 
       toast.success(`Welcome, ${res.data.user.displayName}!`);
       navigate("/");
