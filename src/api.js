@@ -35,11 +35,11 @@ api.interceptors.response.use(
 
     // Skip refresh for auth endpoints to avoid infinite loops
     const isAuthEndpoint = 
-      config.url?.includes('/auth/login') || 
-      config.url?.includes('/auth/register') ||
-      config.url?.includes('/auth/refresh') ||
-      config.url?.includes('/auth/forgot-password') ||
-      config.url?.includes('/auth/reset-password');
+      config.url?.includes('auth/login') || 
+      config.url?.includes('auth/register') ||
+      config.url?.includes('auth/refresh') ||
+      config.url?.includes('auth/forgot-password') ||
+      config.url?.includes('auth/reset-password');
     
     if (isAuthEndpoint) {
       return Promise.reject(error);
@@ -56,7 +56,7 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     return api
-      .post("/auth/refresh")
+      .post("/api/auth/refresh")
       .then(() => {
         // Retry failed request
         processQueue(null);

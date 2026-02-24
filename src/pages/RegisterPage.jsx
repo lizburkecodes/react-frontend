@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api";
 import { setAuth } from "../auth";
 import { validateEmail, validatePassword, validateDisplayName, getPasswordStrengthIndicators } from "../validation";
 
@@ -82,12 +82,11 @@ const RegisterPage = () => {
     try {
       setIsLoading(true);
 
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+      const res = await api.post("/api/auth/register", {
         displayName,
         email,
         password,
       }, {
-        // Enable sending/receiving cookies
         withCredentials: true,
       });
 

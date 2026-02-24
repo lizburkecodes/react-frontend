@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api";
 import { setAuth } from "../auth";
 import { validateEmail, validatePassword } from "../validation";
 
@@ -66,11 +66,10 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
 
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const res = await api.post("/api/auth/login", {
         email,
         password,
       }, {
-        // Enable sending/receiving cookies
         withCredentials: true,
       });
 
