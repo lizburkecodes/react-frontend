@@ -4,6 +4,7 @@ import api from "../api";
 import { toast } from "react-toastify";
 import usePagination from "../hooks/usePagination";
 import { PaginationControls } from "../components/PaginationControls";
+import { getUser } from "../auth";
 
 const StorePage = () => {
   const { id } = useParams();
@@ -20,7 +21,7 @@ const StorePage = () => {
     20
   );
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const user = getUser();
   const isOwner = user && store && String(store.ownerId) === String(user._id);
 
   const getStore = async () => {

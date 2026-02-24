@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { useImageSuggestion } from "../hooks/useImageSuggestion";
+import { validateProductName, validateQuantity, validateImageUrl } from "../validation";
 
 const EditProductForStorePage = () => {
   const { storeId, productId } = useParams();
@@ -13,6 +14,9 @@ const EditProductForStorePage = () => {
     name: "",
     quantity: 0,
   });
+  const [nameError, setNameError] = useState("");
+  const [quantityError, setQuantityError] = useState("");
+  const [imageError, setImageError] = useState("");
 
   const {
     image,
@@ -42,6 +46,7 @@ const EditProductForStorePage = () => {
         setImageLocked(true);
       }
     } catch (error) {
+      console.error("Error loading product:", error);
       const msg = error?.response?.data?.message || error?.message || "Failed to load product";
       toast.error(msg);
     } finally {

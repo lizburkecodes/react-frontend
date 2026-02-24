@@ -81,8 +81,8 @@ export function validateDisplayName(displayName) {
     return 'Display name must be 100 characters or less';
   }
 
-  if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmed)) {
-    return 'Display name can only contain letters, numbers, spaces, hyphens, and underscores';
+  if (!/^[a-zA-Z0-9\s\-_.,'&()#]+$/.test(trimmed)) {
+    return 'Display name can only contain letters, numbers, spaces, and basic punctuation (- _ . , \' & #)';
   }
 
   return null;

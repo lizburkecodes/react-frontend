@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { getUser } from "../auth";
-import { validateProductName, validateLocation, validateImageUrl } from "../validation";
+import { validateDisplayName, validateLocation, validateImageUrl } from "../validation";
 
 const EditStorePage = () => {
   const { id } = useParams(); // storeId
@@ -50,7 +50,7 @@ const EditStorePage = () => {
   const handleNameChange = (value) => {
     setForm({ ...form, name: value });
     if (value) {
-      setNameError(validateProductName(value) || "");
+      setNameError(validateDisplayName(value) || "");
     } else {
       setNameError("");
     }
@@ -85,7 +85,7 @@ const EditStorePage = () => {
   const updateStore = async (e) => {
     e.preventDefault();
 
-    const nameErr = validateProductName(form.name);
+    const nameErr = validateDisplayName(form.name);
     const addressErr = validateLocation(form.addressText);
     const imageErr = form.image ? validateImageUrl(form.image) : null;
 

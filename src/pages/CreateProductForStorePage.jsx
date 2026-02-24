@@ -38,6 +38,7 @@ const CreateProductForStorePage = () => {
       const res = await api.get(`/api/stores/${storeId}`);
       setStore(res.data);
     } catch (error) {
+      console.error("Error loading store:", error);
       toast.error("Could not load store.");
     } finally {
       setIsLoadingStore(false);
