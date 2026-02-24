@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { setAuth } from "../auth";
+import { setUser } from "../auth";
 import { validateEmail, validatePassword } from "../validation";
 
 const LoginPage = () => {
@@ -71,12 +71,8 @@ const LoginPage = () => {
         password,
       });
 
-      // Save tokens for later API requests
-      setAuth({ 
-        accessToken: res.data.accessToken, 
-        refreshToken: res.data.refreshToken,
-        user: res.data.user 
-      });
+      // Save user data (tokens are now in HttpOnly cookies)
+      setUser(res.data.user);
 
       toast.success(`Welcome back, ${res.data.user.displayName}!`);
       navigate("/");

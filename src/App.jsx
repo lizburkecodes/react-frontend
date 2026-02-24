@@ -3,7 +3,7 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { getUser, getRefreshToken, clearAuth, AUTH_CHANGED_EVENT } from "./auth";
+import { getUser, clearUser, AUTH_CHANGED_EVENT } from "./auth";
 import api from "./api";
 
 import HomePage from "./pages/HomePage";
@@ -30,16 +30,13 @@ const App = () => {
 
   const handleLogout = async () => {
     try {
-      // Call backend logout endpoint to invalidate refresh token
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        await api.post("/auth/logout", { refreshToken });
-      }
+      // Call backend logout endpoint to invalidate refresh tokens
+      await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
       // Still logout locally even if backend call fails
     } finally {
-      clearAuth();
+      clearUser();
       navigate("/login");
     }
   };
