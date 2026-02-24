@@ -32,7 +32,7 @@ export const usePagination = (fetchFunction, initialLimit = 20) => {
         setTotalPages(response.pagination.totalPages);
         setCurrentPage(response.pagination.page);
       } catch (err) {
-        setError(err.message || 'Failed to fetch data');
+        setError(err);
         console.error('Pagination fetch error:', err);
       } finally {
         setIsLoading(false);

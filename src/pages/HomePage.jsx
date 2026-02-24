@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import api from "../api";
 import usePagination from "../hooks/usePagination";
 import { PaginationControls } from "../components/PaginationControls";
+import { LoadingSkeleton } from "../components/LoadingSkeleton";
+import { InlineError, EmptyState } from "../components/ErrorState";
 
 const HomePage = () => {
   const [q, setQ] = useState("");
@@ -13,6 +15,7 @@ const HomePage = () => {
   const [searchProducts, setSearchProducts] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searchError, setSearchError] = useState(null);
 
   const [useGeo, setUseGeo] = useState(false);
   const [geoLat, setGeoLat] = useState(null);
@@ -61,6 +64,7 @@ const HomePage = () => {
     try {
       setIsSearching(true);
       setIsSearchMode(true);
+      setSearchError(null);
 
       const params = new URLSearchParams();
       if (q.trim()) params.set("q", q.trim());
@@ -78,6 +82,7 @@ const HomePage = () => {
       setSearchProducts(res.data.products || []);
     } catch (err) {
       console.error("Search failed:", err);
+      setSearchError(err);
     } finally {
       setIsSearching(false);
     }
@@ -185,10 +190,20 @@ const HomePage = () => {
       </form>
       {isSearchMode && (
         <div className="mt-6">
+          {searchError && (
+            <InlineError 
+              error={searchError}
+              onRetry={runSearch}
+              onDismiss={() => setSearchError(null)}
+            />
+          )}
+          
           <h2 className="text-xl font-semibold">Store Results</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            {searchStores.length > 0 ? (
+            {isSearching ? (
+              <LoadingSkeleton count={3} variant="store" />
+            ) : searchStores.length > 0 ? (
               searchStores.map((store) => (
                 <Link
                   key={store._id}
@@ -249,7 +264,12 @@ const HomePage = () => {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
             {storesPageination.isLoading ? (
-              "Loading..."
+              <LoadingSkeleton count={6} variant="store" />
+            ) : storesPageination.error ? (
+              <InlineError 
+                error={storesPageination.error}
+                onRetry={() => storesPageination.fetch(storesPageination.currentPage)}
+              />
             ) : storesPageination.data.length > 0 ? (
               storesPageination.data.map((store) => (
                 <Link
@@ -270,7 +290,18 @@ const HomePage = () => {
                 </Link>
               ))
             ) : (
-              <div>No stores available.</div>
+              <EmptyState 
+                title="No stores available"
+                message="There are currently no stores. Create one to get started!"
+                action={
+                  <Link
+                    to="/stores/create"
+                    className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Create a Store
+                  </Link>
+                }
+              />
             )}
           </div>
 

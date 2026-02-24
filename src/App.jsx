@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { getUser, clearAuth, AUTH_CHANGED_EVENT } from "./auth";
 import api, { fetchCSRFToken } from "./api";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -101,19 +102,21 @@ const App = () => {
         </div>
       </nav>
       <div className="container mx-auto p-2 h-full">
-        <Routes>
-          <Route index element={<HomePage />} />
-          <Route path="/stores/create" element={<CreateStorePage />} />
-          <Route path="/stores/:storeId/products/create" element={<CreateProductForStorePage />} />
-          <Route path="/stores/:storeId/products/:productId/edit" element={<EditProductForStorePage />} />
-          <Route path="/stores/:id/edit" element={<EditStorePage />} />
-          <Route path="/stores/:id" element={<StorePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/account/password" element={<ChangePasswordPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route index element={<HomePage />} />
+            <Route path="/stores/create" element={<CreateStorePage />} />
+            <Route path="/stores/:storeId/products/create" element={<CreateProductForStorePage />} />
+            <Route path="/stores/:storeId/products/:productId/edit" element={<EditProductForStorePage />} />
+            <Route path="/stores/:id/edit" element={<EditStorePage />} />
+            <Route path="/stores/:id" element={<StorePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/account/password" element={<ChangePasswordPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Routes>
+        </ErrorBoundary>
       </div>
       <ToastContainer />
     </div>

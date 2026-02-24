@@ -5,12 +5,15 @@ import { toast } from "react-toastify";
 import usePagination from "../hooks/usePagination";
 import { PaginationControls } from "../components/PaginationControls";
 import { getUser } from "../auth";
+import { LoadingSkeleton, DetailPageSkeleton } from "../components/LoadingSkeleton";
+import { InlineError, EmptyState } from "../components/ErrorState";
 
 const StorePage = () => {
   const { id } = useParams();
 
   const [store, setStore] = useState(null);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
+  const [storeError, setStoreError] = useState(null);
 
   // Pagination for products
   const productsPagination = usePagination(
@@ -27,10 +30,12 @@ const StorePage = () => {
   const getStore = async () => {
     try {
       setIsLoadingStore(true);
+      setStoreError(null);
       const res = await api.get(`/api/stores/${id}`);
       setStore(res.data);
     } catch (err) {
       console.error("Error fetching store:", err);
+      setStoreError(err);
     } finally {
       setIsLoadingStore(false);
     }
@@ -66,7 +71,12 @@ const StorePage = () => {
       </div>
 
       {isLoadingStore ? (
-        <div className="mt-4">Loading store...</div>
+        <DetailPageSkeleton />
+      ) : storeError ? (
+        <InlineError 
+          error={storeError}
+          onRetry={getStore}
+        />
       ) : store ? (
         <div className="bg-white rounded shadow-lg overflow-hidden mt-4">
           {store.image ? (
@@ -107,7 +117,12 @@ const StorePage = () => {
       </div>
 
       {productsPagination.isLoading ? (
-        <div className="mt-3">Loading products...</div>
+        <LoadingSkeleton count={4} variant="product" />
+      ) : productsPagination.error ? (
+        <InlineError 
+          error={productsPagination.error}
+          onRetry={() => productsPagination.fetch(productsPagination.currentPage)}
+        />
       ) : productsPagination.data.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
@@ -155,7 +170,11 @@ const StorePage = () => {
           )}
         </>
       ) : (
-        <div className="mt-3">No products in this store yet.</div>
+        <EmptyState 
+          title="No products yet"
+          message="This store hasn't added any products yet."
+          icon="inbox"
+        />
       )}
     </div>
   );
