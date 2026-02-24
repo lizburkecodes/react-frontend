@@ -6,6 +6,14 @@ const api = axios.create({
   withCredentials: true, // Include HttpOnly cookies in requests
 });
 
+// Request interceptor: prepend /api to all endpoints
+api.interceptors.request.use((config) => {
+  if (!config.url?.startsWith('/api')) {
+    config.url = `/api${config.url}`;
+  }
+  return config;
+});
+
 // Track if we're currently refreshing to prevent multiple refresh requests
 let isRefreshing = false;
 let failedQueue = [];
