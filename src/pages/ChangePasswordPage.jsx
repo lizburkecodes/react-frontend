@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
-import { getUser, clearUser } from "../auth";
+import { getUser, clearAuth } from "../auth";
 import { validatePassword, validatePasswordDifference, validatePasswordsMatch, getPasswordStrengthIndicators } from "../validation";
 
 const ChangePasswordPage = () => {
@@ -91,7 +91,7 @@ const ChangePasswordPage = () => {
       });
 
       toast.success("Password updated successfully. Please log in again.");
-      clearUser();
+      clearAuth();
 
       setCurrentPassword("");
       setNewPassword("");

@@ -36,5 +36,5 @@ export function clearAuth() {
 }
 
 export function isAuthenticated() {
-  return !!currentUser;
+  return !!getUser();
 }
