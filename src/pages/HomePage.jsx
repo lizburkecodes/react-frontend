@@ -115,7 +115,7 @@ const HomePage = () => {
     );
   };
 
-  return (
+  return(
     <div>
       {/* <h1 className="text-2xl font-bold mt-4">Stores</h1> */}
       <form onSubmit={runSearch} className="mt-4 bg-white rounded shadow p-4">
@@ -188,38 +188,57 @@ const HomePage = () => {
           </div>
         </div>
       </form>
+
       {isSearchMode && (
         <div className="mt-6">
           {searchError && (
-            <InlineError 
+            <InlineError
               error={searchError}
               onRetry={runSearch}
               onDismiss={() => setSearchError(null)}
             />
           )}
-          
+
           <h2 className="text-xl font-semibold">Store Results</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6 mt-4">
             {isSearching ? (
               <LoadingSkeleton count={3} variant="store" />
             ) : searchStores.length > 0 ? (
               searchStores.map((store) => (
-                <Link
-                  key={store._id}
-                  to={`/stores/${store._id}`}
-                  className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
-                >
-                  {store.image ? (
-                    <img src={store.image} className="w-full h-40 object-cover" />
-                  ) : (
-                    <div className="w-full h-40 bg-gray-200" />
-                  )}
-                  <div className="px-4 pt-3 pb-4">
-                    <h3 className="text-lg font-semibold">{store.name}</h3>
-                    <div className="text-sm text-gray-700 mt-1">{store.addressText}</div>
-                  </div>
-                </Link>
+                <div key={store._id} className="relative pt-12">
+                  {/* roof */}
+                  <svg
+                    className="absolute top-0 left-0 w-full h-12 z-10"
+                    viewBox="0 0 200 48"
+                    preserveAspectRatio="none"
+                    overflow="visible"
+                    aria-hidden="true"
+                  >
+                    <polygon
+                      points="0,48 100,0 200,48"
+                      fill="white"
+                      stroke="#d1d5db"
+                      strokeWidth="2"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+
+                  <Link
+                    to={`/stores/${store._id}`}
+                    className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
+                  >
+                    {store.image ? (
+                      <img src={store.image} className="w-full h-40 object-cover" />
+                    ) : (
+                      <div className="w-full h-40 bg-gray-200" />
+                    )}
+                    <div className="px-4 pt-3 pb-4">
+                      <h3 className="text-lg font-semibold">{store.name}</h3>
+                      <div className="text-sm text-gray-700 mt-1">{store.addressText}</div>
+                    </div>
+                  </Link>
+                </div>
               ))
             ) : (
               <div className="text-gray-600 mt-2">No stores found.</div>
@@ -260,37 +279,55 @@ const HomePage = () => {
           </div>
         </div>
       )}
+
       {!isSearchMode && (
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6 mt-5">
             {storesPageination.isLoading ? (
               <LoadingSkeleton count={6} variant="store" />
             ) : storesPageination.error ? (
-              <InlineError 
+              <InlineError
                 error={storesPageination.error}
                 onRetry={() => storesPageination.fetch(storesPageination.currentPage)}
               />
             ) : storesPageination.data.length > 0 ? (
               storesPageination.data.map((store) => (
-                <Link
-                  key={store._id}
-                  to={`/stores/${store._id}`}
-                  className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
-                >
-                  {store.image ? (
-                    <img src={store.image} className="w-full h-40 object-cover" />
-                  ) : (
-                    <div className="w-full h-40 bg-gray-200" />
-                  )}
+                <div key={store._id} className="relative pt-12">
+                  {/* roof */}
+                  <svg
+                    className="absolute top-0 left-0 w-full h-12 z-10"
+                    viewBox="0 0 200 48"
+                    preserveAspectRatio="none"
+                    overflow="visible"
+                    aria-hidden="true"
+                  >
+                    <polygon
+                      points="0,48 100,0 200,48"
+                      fill="white"
+                      stroke="#d1d5db"
+                      strokeWidth="2"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+                  <Link
+                    to={`/stores/${store._id}`}
+                    className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
+                  >
+                    {store.image ? (
+                      <img src={store.image} className="w-full h-40 object-cover" />
+                    ) : (
+                      <div className="w-full h-40 bg-gray-200" />
+                    )}
 
-                  <div className="px-4 pt-3 pb-4">
-                    <h2 className="text-lg font-semibold">{store.name}</h2>
-                    <div className="text-sm text-gray-700 mt-1">{store.addressText}</div>
-                  </div>
-                </Link>
+                    <div className="px-4 pt-3 pb-4">
+                      <h2 className="text-lg font-semibold">{store.name}</h2>
+                      <div className="text-sm text-gray-700 mt-1">{store.addressText}</div>
+                    </div>
+                  </Link>
+                </div>
               ))
             ) : (
-              <EmptyState 
+              <EmptyState
                 title="No stores available"
                 message="There are currently no stores. Create one to get started!"
                 action={
