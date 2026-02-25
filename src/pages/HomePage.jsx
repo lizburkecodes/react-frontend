@@ -79,7 +79,7 @@ const HomePage = () => {
       const res = await api.get(`/api/search?${params.toString()}`);
 
       setSearchStores(res.data.stores || []);
-      setSearchProducts(res.data.products || []);
+      setSearchProducts(res.data.data || []);
     } catch (err) {
       console.error("Search failed:", err);
       setSearchError(err);
