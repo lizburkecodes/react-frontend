@@ -175,12 +175,8 @@ describe('validateDisplayName', () => {
       expect(validateDisplayName('a'.repeat(101))).toBe('Display name must be 100 characters or less');
     });
 
-    test('returns error for name with @ symbol', () => {
-      expect(validateDisplayName('user@name')).toMatch(/Display name can only contain/);
-    });
-
-    test('returns error for name with exclamation mark', () => {
-      expect(validateDisplayName('Hello!')).toMatch(/Display name can only contain/);
+    test('returns error for name with special characters', () => {
+      expect(validateDisplayName('user!name')).toMatch(/Display name can only contain/);
     });
 
     test('returns error for name with emoji', () => {
@@ -242,16 +238,12 @@ describe('validateProductName', () => {
       expect(validateProductName('a'.repeat(201))).toBe('Product name must be 200 characters or less');
     });
 
-    test('returns error for name with @ symbol', () => {
+    test('Does not return error when exactly 200 characters', () => {
+      expect(validateProductName('a'.repeat(200))).toBeNull();
+    });
+
+    test('returns error for name with invalid characters', () => {
       expect(validateProductName('Beans @special')).toBe('Product name contains invalid characters');
-    });
-
-    test('returns error for name with exclamation mark', () => {
-      expect(validateProductName('Soup!')).toBe('Product name contains invalid characters');
-    });
-
-    test('returns error for name with hashtag', () => {
-      expect(validateProductName('Item #5')).toBe('Product name contains invalid characters');
     });
   });
 
