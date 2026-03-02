@@ -18,6 +18,10 @@ const EditProductForStorePage = () => {
   const [quantityError, setQuantityError] = useState("");
   const [imageError, setImageError] = useState("");
 
+  const [imageMode, setImageMode] = useState("url"); // "url" | "upload"
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploadPreview, setUploadPreview] = useState(null);
+
   const {
     image,
     setImage,
@@ -86,6 +90,39 @@ const EditProductForStorePage = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ALLOWED = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
+    if (!ALLOWED.includes(file.type)) {
+      setImageError("Only JPEG, PNG, GIF, and WebP images are allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError("Image must be under 5 MB");
+      return;
+    }
+    setImageError("");
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    setUploadFile(file);
+    setUploadPreview(URL.createObjectURL(file));
+  };
+
+  const clearUploadFile = () => {
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    setUploadFile(null);
+    setUploadPreview(null);
+    setImageError("");
+  };
+
+  // Revoke object URL on unmount or when preview changes
+  useEffect(() => {
+    return () => {
+      if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadPreview]);
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -97,7 +134,6 @@ const EditProductForStorePage = () => {
 
     const nameErr = validateProductName(product.name);
     const quantityErr = validateQuantity(product.quantity);
-    const imageErr = image ? validateImageUrl(image) : null;
 
     if (nameErr) {
       setNameError(nameErr);
@@ -107,16 +143,29 @@ const EditProductForStorePage = () => {
       setQuantityError(quantityErr);
       return;
     }
-    if (imageErr) {
-      setImageError(imageErr);
-      return;
-    }
 
-    // If user didn't provide image, fall back to suggestion
-    const finalImage = image.trim() || suggested?.imageUrl || "";
+    // Validate URL only in URL mode
+    if (imageMode === "url") {
+      const imageErr = image ? validateImageUrl(image) : null;
+      if (imageErr) {
+        setImageError(imageErr);
+        return;
+      }
+    }
 
     try {
       setIsLoading(true);
+
+      let finalImage = "";
+
+      if (imageMode === "upload" && uploadFile) {
+        const formData = new FormData();
+        formData.append("image", uploadFile);
+        const uploadRes = await api.post("/api/images/upload", formData);
+        finalImage = uploadRes.data.imageUrl;
+      } else if (imageMode === "url") {
+        finalImage = image.trim() || suggested?.imageUrl || "";
+      }
 
       const res = await api.put(`/api/products/${productId}`, {
         name: product.name,
@@ -178,76 +227,145 @@ const EditProductForStorePage = () => {
               </div>
 
               <div>
-                <label htmlFor="image">Image URL (optional)</label>
-                <input
-                  type="text"
-                  value={image}
-                  onChange={(e) => {
-                    setImageLocked(true);
-                    handleImageChange(e.target.value);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${imageError ? "border-red-500 focus:border-red-500" : ""}`}
-                  placeholder="Paste an image URL OR use a suggestion"
-                />
-                {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
-                <div className="text-xs text-gray-500 mt-1">
-                  {isSuggesting ? "Finding an image..." : "\u00A0"}
-                </div>
-                <div className="flex gap-2 mt-2">
+                <label htmlFor="image">Image (optional)</label>
+
+                {/* Mode Toggle */}
+                <div className="flex border rounded overflow-hidden text-sm mb-3 mt-1">
                   <button
                     type="button"
-                    onClick={() => fetchSuggestedImage(product.name, true)}
-                    disabled={!product.name.trim() || isSuggesting}
-                    className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200 disabled:opacity-60"
+                    onClick={() => { setImageMode("url"); setImageError(""); }}
+                    className={`flex-1 py-2 font-medium transition-colors ${
+                      imageMode === "url"
+                        ? "bg-blue-700 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   >
-                    {isSuggesting ? "Suggesting..." : "Get image options"}
+                    URL / Pexels
                   </button>
-
-                  {imageLocked && (
-                    <button
-                      type="button"
-                      onClick={clearImage}
-                      className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200"
-                    >
-                      Clear image
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setImageMode("upload"); setImageError(""); }}
+                    className={`flex-1 py-2 font-medium transition-colors ${
+                      imageMode === "upload"
+                        ? "bg-blue-700 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Upload File
+                  </button>
                 </div>
 
-                {suggestions.length > 0 && (
-                  <div className="mt-3 border rounded p-3">
-                    <div className="text-sm font-semibold mb-2">Pick an image</div>
+                {imageMode === "url" ? (
+                  <>
+                    <input
+                      type="text"
+                      value={image}
+                      onChange={(e) => {
+                        setImageLocked(true);
+                        handleImageChange(e.target.value);
+                      }}
+                      onKeyDown={handleKeyDown}
+                      className={`w-full block border p-3 text-gray-600 rounded focus:outline-none focus:shadow-outline focus:border-blue-200 placeholder-gray-400 ${imageError ? "border-red-500 focus:border-red-500" : ""}`}
+                      placeholder="Paste an image URL OR use a suggestion below"
+                    />
+                    {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
+                    <div className="text-xs text-gray-500 mt-1">
+                      {isSuggesting ? "Finding an image..." : "\u00A0"}
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => fetchSuggestedImage(product.name, true)}
+                        disabled={!product.name.trim() || isSuggesting}
+                        className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200 disabled:opacity-60"
+                      >
+                        {isSuggesting ? "Suggesting..." : "Get image options"}
+                      </button>
 
-                    <div className="grid grid-cols-3 gap-2">
-                      {suggestions.slice(0, 6).map((s, idx) => (
+                      {imageLocked && (
                         <button
                           type="button"
-                          key={s.imageUrl}
-                          onClick={() => chooseSuggestion(idx)}
-                          className={`border rounded overflow-hidden ${
-                            idx === suggestIndex ? "ring-2 ring-blue-500" : ""
-                          }`}
-                          title="Use this image"
+                          onClick={clearImage}
+                          className="bg-gray-100 border rounded px-3 py-2 text-sm hover:bg-gray-200"
                         >
-                          <img src={s.imageUrl} alt="Suggestion" className="w-full h-24 object-cover" />
+                          Clear image
                         </button>
-                      ))}
+                      )}
                     </div>
 
-                    {suggestions[suggestIndex]?.creditUrl && suggestions[suggestIndex]?.creditText && (
-                      <div className="text-xs text-gray-500 mt-2">
-                        <a
-                          href={suggestions[suggestIndex].creditUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:underline"
-                        >
-                          {suggestions[suggestIndex].creditText}
-                        </a>
+                    {suggestions.length > 0 && (
+                      <div className="mt-3 border rounded p-3">
+                        <div className="text-sm font-semibold mb-2">Pick an image</div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                          {suggestions.slice(0, 6).map((s, idx) => (
+                            <button
+                              type="button"
+                              key={s.imageUrl}
+                              onClick={() => chooseSuggestion(idx)}
+                              className={`border rounded overflow-hidden ${
+                                idx === suggestIndex ? "ring-2 ring-blue-500" : ""
+                              }`}
+                              title="Use this image"
+                            >
+                              <img src={s.imageUrl} alt="Suggestion" className="w-full h-24 object-cover" />
+                            </button>
+                          ))}
+                        </div>
+
+                        {suggestions[suggestIndex]?.creditUrl && suggestions[suggestIndex]?.creditText && (
+                          <div className="text-xs text-gray-500 mt-2">
+                            <a
+                              href={suggestions[suggestIndex].creditUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:underline"
+                            >
+                              {suggestions[suggestIndex].creditText}
+                            </a>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    <label
+                      htmlFor="imageFile"
+                      className={`flex flex-col items-center justify-center w-full border-2 border-dashed rounded cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden ${
+                        imageError ? "border-red-500" : "border-gray-300"
+                      } ${uploadPreview ? "h-40" : "h-28"}`}
+                    >
+                      {uploadPreview ? (
+                        <img src={uploadPreview} alt="Preview" className="h-full w-full object-contain p-1" />
+                      ) : (
+                        <div className="text-center p-4">
+                          <div className="text-gray-500 text-sm">Click to choose an image</div>
+                          <div className="text-xs text-gray-400 mt-1">JPEG, PNG, GIF, WebP · max 5 MB</div>
+                        </div>
+                      )}
+                    </label>
+                    <input
+                      id="imageFile"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
+                    {uploadFile && (
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-gray-500 truncate">{uploadFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={clearUploadFile}
+                          className="text-xs text-red-500 ml-2 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
