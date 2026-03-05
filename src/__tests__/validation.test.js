@@ -120,8 +120,8 @@ describe('validatePassword', () => {
       expect(validatePassword('1234567')).toBe('Password must be at least 8 characters');
     });
 
-    test('returns error when longer than 64 characters', () => {
-      expect(validatePassword('a'.repeat(65))).toBe('Password is too long');
+    test('returns error when longer than 1024 characters', () => {
+      expect(validatePassword('a'.repeat(1025))).toBe('Password must not exceed 1024 characters');
     });
   });
 
@@ -130,8 +130,8 @@ describe('validatePassword', () => {
       expect(validatePassword('abcd1234')).toBeNull();
     });
 
-    test('accepts password at exactly maximum length (64)', () => {
-      expect(validatePassword('a'.repeat(64))).toBeNull();
+    test('accepts password at exactly maximum length (1024)', () => {
+      expect(validatePassword('a'.repeat(1024))).toBeNull();
     });
 
     test('accepts a passphrase with spaces', () => {
@@ -171,8 +171,8 @@ describe('validateDisplayName', () => {
       expect(validateDisplayName(' ')).toBe('Display name must be at least 2 characters');
     });
 
-    test('returns error when over 100 characters', () => {
-      expect(validateDisplayName('a'.repeat(101))).toBe('Display name must be 100 characters or less');
+    test('returns error when over 50 characters', () => {
+      expect(validateDisplayName('a'.repeat(51))).toBe('Display name must be 50 characters or less');
     });
 
     test('returns error for name with special characters', () => {
@@ -209,8 +209,8 @@ describe('validateDisplayName', () => {
       expect(validateDisplayName('Jo')).toBeNull();
     });
 
-    test('accepts name at exactly 100 characters', () => {
-      expect(validateDisplayName('a'.repeat(100))).toBeNull();
+    test('accepts name at exactly 50 characters', () => {
+      expect(validateDisplayName('a'.repeat(50))).toBeNull();
     });
   });
 });
@@ -234,12 +234,12 @@ describe('validateProductName', () => {
       expect(validateProductName('   ')).toBe('Product name cannot be empty');
     });
 
-    test('returns error when over 200 characters', () => {
-      expect(validateProductName('a'.repeat(201))).toBe('Product name must be 200 characters or less');
+    test('returns error when over 100 characters', () => {
+      expect(validateProductName('a'.repeat(101))).toBe('Product name must be 100 characters or less');
     });
 
-    test('Does not return error when exactly 200 characters', () => {
-      expect(validateProductName('a'.repeat(200))).toBeNull();
+    test('Does not return error when exactly 100 characters', () => {
+      expect(validateProductName('a'.repeat(100))).toBeNull();
     });
 
     test('returns error for name with invalid characters', () => {
@@ -268,8 +268,8 @@ describe('validateProductName', () => {
       expect(validateProductName('Mac & Cheese')).toBeNull();
     });
 
-    test('accepts name at exactly 200 characters', () => {
-      expect(validateProductName('a'.repeat(200))).toBeNull();
+    test('accepts name at exactly 100 characters', () => {
+      expect(validateProductName('a'.repeat(100))).toBeNull();
     });
   });
 });
@@ -352,8 +352,8 @@ describe('validateLocation', () => {
       expect(validateLocation('  ')).toBe('Location must be at least 3 characters');
     });
 
-    test('returns error when over 500 characters', () => {
-      expect(validateLocation('a'.repeat(501))).toBe('Location must be 500 characters or less');
+    test('returns error when over 150 characters', () => {
+      expect(validateLocation('a'.repeat(151))).toBe('Location must be 150 characters or less');
     });
 
     test('returns error for regex injection pattern ".*"', () => {
@@ -398,8 +398,8 @@ describe('validateLocation', () => {
       expect(validateLocation('NYC')).toBeNull();
     });
 
-    test('accepts exactly 500 characters', () => {
-      expect(validateLocation('a'.repeat(500))).toBeNull();
+    test('accepts exactly 150 characters', () => {
+      expect(validateLocation('a'.repeat(150))).toBeNull();
     });
   });
 });

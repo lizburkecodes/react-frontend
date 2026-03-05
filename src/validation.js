@@ -9,8 +9,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Password requirements
 const PASSWORD_MIN_LENGTH = 8;
-const PRODUCT_NAME_MAX_LENGTH = 200;
-const ADDRESS_MAX_LENGTH = 500;
+const PASSWORD_MAX_LENGTH = 1024;
+const PRODUCT_NAME_MAX_LENGTH = 100;
+const ADDRESS_MAX_LENGTH = 150;
 
 /**
  * Validate email format
@@ -54,8 +55,8 @@ export function validatePassword(password) {
     return `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
   }
 
-  if (password.length > 64) {
-    return 'Password is too long';
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return `Password must not exceed ${PASSWORD_MAX_LENGTH} characters`;
   }
 
   return null;
@@ -77,8 +78,8 @@ export function validateDisplayName(displayName) {
     return 'Display name must be at least 2 characters';
   }
 
-  if (trimmed.length > 100) {
-    return 'Display name must be 100 characters or less';
+  if (trimmed.length > 50) {
+    return 'Display name must be 50 characters or less';
   }
 
   if (!/^[a-zA-Z0-9\s\-_.,'&()#]+$/.test(trimmed)) {

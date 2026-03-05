@@ -29,7 +29,7 @@ const HomePage = () => {
       const response = await api.get("/api/stores", { params });
       return response.data;
     },
-    20
+    21
   );
 
   useEffect(() => {
@@ -229,9 +229,9 @@ const HomePage = () => {
                     className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
                   >
                     {store.image ? (
-                      <img src={store.image} className="w-full h-40 object-cover" />
+                      <img src={store.image} className="w-full h-52 object-cover" />
                     ) : (
-                      <div className="w-full h-40 bg-gray-200" />
+                      <div className="w-full h-52 bg-gray-200" />
                     )}
                     <div className="px-4 pt-3 pb-4">
                       <h3 className="text-lg font-semibold">{store.name}</h3>
@@ -314,9 +314,9 @@ const HomePage = () => {
                     className="block bg-white rounded shadow-lg overflow-hidden hover:shadow-xl transition"
                   >
                     {store.image ? (
-                      <img src={store.image} className="w-full h-40 object-cover" />
+                      <img src={store.image} className="w-full h-72 object-cover" />
                     ) : (
-                      <div className="w-full h-40 bg-gray-200" />
+                      <div className="w-full h-72 bg-gray-200" />
                     )}
 
                     <div className="px-4 pt-3 pb-4">
